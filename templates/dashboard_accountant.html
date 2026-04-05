@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card bg-gradient" style="background: linear-gradient(135deg, #003f87 0%, #0066cc 100%); color: white;">
+                <div class="card-body p-4">
+                    <h2 class="mb-0">
+                        <i class="bi bi-speedometer2"></i> Welcome, {{ user.get_full_name }}!
+                    </h2>
+                    <p class="mb-0 text-white-50">Accountant Dashboard</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-left-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">Total Fees</small>
+                            <h4 class="mb-0 mt-2 text-info">
+                                ₹{{ total_fees|default:'0' }}
+                            </h4>
+                        </div>
+                        <div style="font-size: 2.5rem; color: #e9ecef;">
+                            <i class="bi bi-currency-dollar"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-left-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">Amount Collected</small>
+                            <h4 class="mb-0 mt-2 text-success">
+                                ₹{{ total_collected|default:'0' }}
+                            </h4>
+                        </div>
+                        <div style="font-size: 2.5rem; color: #e9ecef;">
+                            <i class="bi bi-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-left-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">Pending Amount</small>
+                            <h4 class="mb-0 mt-2 text-warning">
+                                ₹{{ pending_amount|default:'0' }}
+                            </h4>
+                        </div>
+                        <div style="font-size: 2.5rem; color: #e9ecef;">
+                            <i class="bi bi-hourglass"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Action Cards -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-currency-dollar"></i> Fee Management
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Create and manage student fees</p>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a href="{% url 'fee-list' %}" class="btn btn-info">
+                            <i class="bi bi-list"></i> View All Fees
+                        </a>
+                        <a href="{% url 'fee-create' %}" class="btn btn-info">
+                            <i class="bi bi-plus-circle"></i> Create Fee
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-credit-card"></i> Payment Recording
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Record student payments</p>
+                    <a href="{% url 'fee-list' %}" class="btn btn-success">
+                        <i class="bi bi-currency-dollar"></i> Record Payment
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="bi bi-bar-chart"></i> Payment Report
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">View payment collections</p>
+                    <a href="{% url 'report-payment' %}" class="btn btn-warning">
+                        <i class="bi bi-chart-bar"></i> View Report
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="bi bi-file-earmark"></i> Fee Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Fee status analysis</p>
+                    <a href="{% url 'report-fee-status' %}" class="btn btn-warning">
+                        <i class="bi bi-list"></i> View Report
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-exclamation-circle"></i> Overdue Fees
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Track overdue payments</p>
+                    <a href="{% url 'report-overdue' %}" class="btn btn-danger">
+                        <i class="bi bi-list"></i> View Overdue
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Features -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-bell"></i> Notifications
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">System notifications and alerts</p>
+                    <a href="{% url 'notifications' %}" class="btn btn-secondary">
+                        <i class="bi bi-bell"></i> View Notifications
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-person-circle"></i> My Profile
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Update your profile</p>
+                    <a href="{% url 'profile' %}" class="btn btn-dark">
+                        <i class="bi bi-pencil"></i> Edit Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Reference Cards -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle"></i> Quick Links
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'fee-list' %}" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-currency-dollar"></i><br>All Fees
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'report-payment' %}" class="btn btn-outline-success w-100">
+                                <i class="bi bi-graph-up"></i><br>Collections
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'report-fee-status' %}" class="btn btn-outline-info w-100">
+                                <i class="bi bi-list"></i><br>Fee Status
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{% url 'report-overdue' %}" class="btn btn-outline-danger w-100">
+                                <i class="bi bi-exclamation"></i><br>Overdue
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CSS -->
+<style>
+    .border-left-info {
+        border-left: 4px solid #17a2b8;
+    }
+    .border-left-success {
+        border-left: 4px solid #28a745;
+    }
+    .border-left-warning {
+        border-left: 4px solid #ffc107;
+    }
+
+    .card {
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+</style>
+{% endblock %}

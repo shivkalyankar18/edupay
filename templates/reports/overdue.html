@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2>
+                <i class="bi bi-exclamation-circle"></i> Overdue Fees Report
+            </h2>
+            <p class="text-muted">Manage and track overdue student fees</p>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-danger">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">Total Overdue Amount</small>
+                            <h4 class="mb-0 mt-2 text-danger">
+                                ₹{{ total_overdue }}
+                            </h4>
+                        </div>
+                        <div style="font-size: 3rem; color: #e9ecef;">
+                            <i class="bi bi-exclamation-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">Overdue Records</small>
+                            <h4 class="mb-0 mt-2 text-warning">
+                                {% if fees %}{{ fees|length }}{% else %}0{% endif %}
+                            </h4>
+                        </div>
+                        <div style="font-size: 3rem; color: #e9ecef;">
+                            <i class="bi bi-file-earmark-check"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">Report Date</small>
+                            <h6 class="mb-0 mt-2">
+                                {% now "d M Y" %}
+                            </h6>
+                        </div>
+                        <div style="font-size: 3rem; color: #e9ecef;">
+                            <i class="bi bi-calendar"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overdue Fees Table -->
+    <div class="card">
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0">
+                <i class="bi bi-table"></i> Overdue Fees Details
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            {% if fees %}
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 16%;">Student Name</th>
+                                <th style="width: 12%;">Course Code</th>
+                                <th style="width: 10%;">Fee Amount</th>
+                                <th style="width: 10%;">Paid</th>
+                                <th style="width: 10%;">Outstanding</th>
+                                <th style="width: 12%;">Due Date</th>
+                                <th style="width: 10%;">Days Overdue</th>
+                                <th style="width: 10%;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for fee in fees %}
+                                <tr class="table-danger">
+                                    <td>
+                                        <strong>{{ fee.student.get_full_name }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ fee.student.username }}</small>
+                                        <br>
+                                        <small class="text-muted">
+                                            <a href="mailto:{{ fee.student.email }}">{{ fee.student.email }}</a>
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary">
+                                            {{ fee.course.course_code }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <strong>₹{{ fee.amount }}</strong>
+                                    </td>
+                                    <td>
+                                        <span class="text-success">
+                                            <strong>₹{{ fee.amount_paid }}</strong>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="text-danger">
+                                            <strong>₹{{ fee.get_remaining }}</strong>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <strong class="text-danger">
+                                            {{ fee.due_date|date:"d M Y" }}
+                                        </strong>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-danger">
+                                            {{ fee.get_days_overdue }} days
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="{% url 'fee-detail' fee.pk %}" 
+                                               class="btn btn-info" 
+                                               title="View Fee">
+                                                <i class="bi bi-eye"></i> View
+                                            </a>
+                                            <a href="{% url 'payment-create' fee.pk %}" 
+                                               class="btn btn-success" 
+                                               title="Record Payment">
+                                                <i class="bi bi-credit-card"></i> Pay
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Table Footer -->
+                <div class="card-footer bg-light">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <small class="text-muted">Total Overdue Records</small>
+                            <h6>{{ fees|length }}</h6>
+                        </div>
+                        <div class="col-md-4">
+                            <small class="text-muted">Total Overdue Amount</small>
+                            <h6 class="text-danger">₹{{ total_overdue }}</h6>
+                        </div>
+                        <div class="col-md-4">
+                            <small class="text-muted">Avg Days Overdue</small>
+                            <h6 class="text-warning">
+                                {% if fees %}
+                                    {% for fee in fees %}
+                                        {% if forloop.first %}{{ fee.get_days_overdue }}{% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    0
+                                {% endif %}
+                            </h6>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <!-- Empty State -->
+                <div class="text-center py-5">
+                    <i class="bi bi-check-circle" style="font-size: 3rem; color: #28a745;"></i>
+                    <p class="text-success mt-3">
+                        <strong>Great! No overdue fees!</strong>
+                    </p>
+                    <p class="text-muted">All student fees are up to date</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Action Cards -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="bi bi-lightning"></i> Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'fee-list' %}" class="btn btn-primary">
+                        <i class="bi bi-list"></i> View All Fees
+                    </a>
+                    <a href="{% url 'report-fee-status' %}" class="btn btn-info">
+                        <i class="bi bi-bar-chart"></i> Fee Status Report
+                    </a>
+                    <a href="{% url 'report-payment' %}" class="btn btn-success">
+                        <i class="bi bi-currency-dollar"></i> Payment Collection Report
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Information Alert -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="alert alert-danger">
+                <h6>
+                    <i class="bi bi-exclamation-triangle"></i> Overdue Fees Information
+                </h6>
+                <ul class="mb-0">
+                    <li>This report shows all fees where the due date has passed and the fee is not fully paid</li>
+                    <li>Click "Pay" button to record a payment for overdue fees</li>
+                    <li>Late fees and penalties may apply to overdue amounts</li>
+                    <li>Contact students to follow up on overdue payments</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Footer -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="alert alert-secondary">
+                <small>
+                    <strong>Report Generated:</strong> {% now "d M Y H:i" %}<br>
+                    <strong>Report Type:</strong> Overdue Fees Report<br>
+                    <strong>Data Period:</strong> All Time<br>
+                    <strong>Total Overdue Records:</strong> {% if fees %}{{ fees|length }}{% else %}0{% endif %}
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

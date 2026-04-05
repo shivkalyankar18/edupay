@@ -1,0 +1,366 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>
+                <i class="bi bi-bell"></i> Notifications
+            </h2>
+            <p class="text-muted">View all your system notifications and alerts</p>
+        </div>
+        <div class="col-md-4 text-end">
+            {% if unread_count > 0 %}
+                <span class="badge bg-danger" style="font-size: 1rem;">
+                    {{ unread_count }} Unread
+                </span>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <ul class="nav nav-tabs mb-4" id="notificationTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" 
+                    type="button" role="tab" aria-controls="all" aria-selected="true">
+                All Notifications
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="unread-tab" data-bs-toggle="tab" data-bs-target="#unread" 
+                    type="button" role="tab" aria-controls="unread" aria-selected="false">
+                Unread
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="fee-tab" data-bs-toggle="tab" data-bs-target="#fee" 
+                    type="button" role="tab" aria-controls="fee" aria-selected="false">
+                Fee Alerts
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="payment-tab" data-bs-toggle="tab" data-bs-target="#payment" 
+                    type="button" role="tab" aria-controls="payment" aria-selected="false">
+                Payment
+            </button>
+        </li>
+    </ul>
+
+    <!-- Notifications Content -->
+    <div class="tab-content" id="notificationTabsContent">
+        <!-- All Notifications Tab -->
+        <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
+            {% if notifications %}
+                <div class="list-group">
+                    {% for notification in notifications %}
+                        <div class="list-group-item {% if not notification.is_read %}bg-light border-primary border-3{% endif %}">
+                            <div class="d-flex w-100 justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <!-- Notification Icon -->
+                                        {% if notification.notif_type == 'fee_assigned' %}
+                                            <i class="bi bi-currency-dollar text-info" style="font-size: 1.5rem;"></i>
+                                        {% elif notification.notif_type == 'payment_received' %}
+                                            <i class="bi bi-check-circle text-success" style="font-size: 1.5rem;"></i>
+                                        {% elif notification.notif_type == 'payment_overdue' %}
+                                            <i class="bi bi-exclamation-circle text-danger" style="font-size: 1.5rem;"></i>
+                                        {% elif notification.notif_type == 'payment_reminder' %}
+                                            <i class="bi bi-clock text-warning" style="font-size: 1.5rem;"></i>
+                                        {% else %}
+                                            <i class="bi bi-info-circle text-secondary" style="font-size: 1.5rem;"></i>
+                                        {% endif %}
+                                        
+                                        <div>
+                                            <h5 class="mb-1">
+                                                {{ notification.title }}
+                                                {% if not notification.is_read %}
+                                                    <span class="badge bg-primary ms-2">New</span>
+                                                {% endif %}
+                                            </h5>
+                                            <p class="mb-1 text-muted">
+                                                {{ notification.message }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-end ms-3">
+                                    <small class="text-muted">
+                                        {{ notification.created_at|date:"d M Y H:i" }}
+                                    </small>
+                                    <br>
+                                    <small class="text-muted">
+                                        <i class="bi bi-clock"></i>
+                                        {% load humanize %}
+                                        {{ notification.created_at|timesince }} ago
+                                    </small>
+                                </div>
+                            </div>
+                            
+                            <!-- Notification Type Badge -->
+                            <div class="mt-3">
+                                {% if notification.notif_type == 'fee_assigned' %}
+                                    <span class="badge bg-info">Fee Assigned</span>
+                                {% elif notification.notif_type == 'payment_received' %}
+                                    <span class="badge bg-success">Payment Received</span>
+                                {% elif notification.notif_type == 'payment_overdue' %}
+                                    <span class="badge bg-danger">Payment Overdue</span>
+                                {% elif notification.notif_type == 'payment_reminder' %}
+                                    <span class="badge bg-warning text-dark">Reminder</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ notification.get_notif_type_display }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info text-center py-5">
+                    <i class="bi bi-inbox" style="font-size: 3rem; color: #0066cc;"></i>
+                    <p class="mt-3 mb-0">
+                        <strong>No notifications</strong><br>
+                        <small class="text-muted">You're all caught up!</small>
+                    </p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Unread Notifications Tab -->
+        <div class="tab-pane fade" id="unread" role="tabpanel" aria-labelledby="unread-tab">
+            {% with unread_notifications=notifications|dictsort:"is_read" %}
+                {% if unread_notifications %}
+                    <div class="list-group">
+                        {% for notification in unread_notifications %}
+                            {% if not notification.is_read %}
+                                <div class="list-group-item bg-light border-primary border-3">
+                                    <div class="d-flex w-100 justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex align-items-center gap-2">
+                                                {% if notification.notif_type == 'fee_assigned' %}
+                                                    <i class="bi bi-currency-dollar text-info" style="font-size: 1.5rem;"></i>
+                                                {% elif notification.notif_type == 'payment_received' %}
+                                                    <i class="bi bi-check-circle text-success" style="font-size: 1.5rem;"></i>
+                                                {% elif notification.notif_type == 'payment_overdue' %}
+                                                    <i class="bi bi-exclamation-circle text-danger" style="font-size: 1.5rem;"></i>
+                                                {% elif notification.notif_type == 'payment_reminder' %}
+                                                    <i class="bi bi-clock text-warning" style="font-size: 1.5rem;"></i>
+                                                {% else %}
+                                                    <i class="bi bi-info-circle text-secondary" style="font-size: 1.5rem;"></i>
+                                                {% endif %}
+                                                
+                                                <div>
+                                                    <h5 class="mb-1">
+                                                        {{ notification.title }}
+                                                        <span class="badge bg-primary ms-2">New</span>
+                                                    </h5>
+                                                    <p class="mb-1 text-muted">
+                                                        {{ notification.message }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="text-end ms-3">
+                                            <small class="text-muted">
+                                                {{ notification.created_at|date:"d M Y H:i" }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-success text-center py-5">
+                        <i class="bi bi-check-circle" style="font-size: 3rem; color: #28a745;"></i>
+                        <p class="mt-3 mb-0">
+                            <strong>No unread notifications</strong><br>
+                            <small class="text-muted">All notifications have been read</small>
+                        </p>
+                    </div>
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <!-- Fee Alerts Tab -->
+        <div class="tab-pane fade" id="fee" role="tabpanel" aria-labelledby="fee-tab">
+            {% with fee_notifications=notifications|dictsort:"notif_type" %}
+                {% if fee_notifications %}
+                    <div class="list-group">
+                        {% for notification in fee_notifications %}
+                            {% if notification.notif_type == 'fee_assigned' or notification.notif_type == 'payment_overdue' or notification.notif_type == 'payment_reminder' %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex align-items-center gap-2">
+                                                {% if notification.notif_type == 'fee_assigned' %}
+                                                    <i class="bi bi-currency-dollar text-info" style="font-size: 1.5rem;"></i>
+                                                {% elif notification.notif_type == 'payment_overdue' %}
+                                                    <i class="bi bi-exclamation-circle text-danger" style="font-size: 1.5rem;"></i>
+                                                {% elif notification.notif_type == 'payment_reminder' %}
+                                                    <i class="bi bi-clock text-warning" style="font-size: 1.5rem;"></i>
+                                                {% endif %}
+                                                
+                                                <div>
+                                                    <h5 class="mb-1">{{ notification.title }}</h5>
+                                                    <p class="mb-1 text-muted">{{ notification.message }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="text-end ms-3">
+                                            <small class="text-muted">
+                                                {{ notification.created_at|date:"d M Y" }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info text-center py-5">
+                        <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                        <p class="mt-3 mb-0">
+                            <strong>No fee alerts</strong><br>
+                            <small class="text-muted">No fee-related notifications</small>
+                        </p>
+                    </div>
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <!-- Payment Notifications Tab -->
+        <div class="tab-pane fade" id="payment" role="tabpanel" aria-labelledby="payment-tab">
+            {% with payment_notifications=notifications|dictsort:"notif_type" %}
+                {% if payment_notifications %}
+                    <div class="list-group">
+                        {% for notification in payment_notifications %}
+                            {% if notification.notif_type == 'payment_received' %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <i class="bi bi-check-circle text-success" style="font-size: 1.5rem;"></i>
+                                                <div>
+                                                    <h5 class="mb-1">{{ notification.title }}</h5>
+                                                    <p class="mb-1 text-muted">{{ notification.message }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="text-end ms-3">
+                                            <small class="text-muted">
+                                                {{ notification.created_at|date:"d M Y" }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info text-center py-5">
+                        <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                        <p class="mt-3 mb-0">
+                            <strong>No payment notifications</strong><br>
+                            <small class="text-muted">No payment confirmations yet</small>
+                        </p>
+                    </div>
+                {% endif %}
+            {% endwith %}
+        </div>
+    </div>
+
+    <!-- Notification Information Card -->
+    <div class="card mt-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">
+                <i class="bi bi-info-circle"></i> Notification Types
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <h6>
+                            <i class="bi bi-currency-dollar text-info"></i> Fee Assigned
+                        </h6>
+                        <small class="text-muted">
+                            You have a new fee assigned for a course
+                        </small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <h6>
+                            <i class="bi bi-check-circle text-success"></i> Payment Received
+                        </h6>
+                        <small class="text-muted">
+                            Your payment has been confirmed
+                        </small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <h6>
+                            <i class="bi bi-clock text-warning"></i> Reminder
+                        </h6>
+                        <small class="text-muted">
+                            Your fee payment is due soon
+                        </small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <h6>
+                            <i class="bi bi-exclamation-circle text-danger"></i> Overdue
+                        </h6>
+                        <small class="text-muted">
+                            Your payment is overdue
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card mt-4">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">
+                <i class="bi bi-lightning"></i> Quick Actions
+            </h5>
+        </div>
+        <div class="card-body">
+            <a href="{% url 'my-fees' %}" class="btn btn-primary">
+                <i class="bi bi-currency-dollar"></i> View My Fees
+            </a>
+            <a href="{% url 'payment-history' %}" class="btn btn-success">
+                <i class="bi bi-clock-history"></i> Payment History
+            </a>
+            <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+                <i class="bi bi-house"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- CSS for notifications -->
+<style>
+    .list-group-item {
+        border-left: 4px solid transparent;
+        transition: all 0.3s ease;
+    }
+    
+    .list-group-item:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .list-group-item.bg-light {
+        border-left-color: #0066cc;
+    }
+    
+    .badge {
+        padding: 0.35rem 0.65rem;
+        font-size: 0.8rem;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center mt-4">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-currency-dollar"></i> Create New Fee
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Display errors if any -->
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <strong>Error!</strong>
+                                {% for error in form.non_field_errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endif %}
+
+                        <!-- Fee Details Section -->
+                        <h5 class="mb-3">
+                            <i class="bi bi-info-circle"></i> Fee Details
+                        </h5>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Student *</label>
+                                {{ form.student }}
+                                {% if form.student.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.student.errors }}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">Select the student for this fee</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Course *</label>
+                                {{ form.course }}
+                                {% if form.course.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.course.errors }}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">Select the course</small>
+                            </div>
+                        </div>
+
+                        <!-- Fee Amount Section -->
+                        <h5 class="mb-3">
+                            <i class="bi bi-currency-dollar"></i> Fee Amount
+                        </h5>
+
+                        <div class="mb-3">
+                            <label class="form-label">Amount *</label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text">₹</span>
+                                {{ form.amount }}
+                            </div>
+                            {% if form.amount.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.amount.errors }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">Enter the total fee amount</small>
+                        </div>
+
+                        <!-- Due Date Section -->
+                        <h5 class="mb-3">
+                            <i class="bi bi-calendar-event"></i> Due Date
+                        </h5>
+
+                        <div class="mb-3">
+                            <label class="form-label">Due Date *</label>
+                            {{ form.due_date }}
+                            {% if form.due_date.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.due_date.errors }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">Select the fee due date</small>
+                        </div>
+
+                        <!-- Status Section -->
+                        <h5 class="mb-3">
+                            <i class="bi bi-toggle2-on"></i> Status
+                        </h5>
+
+                        <div class="mb-3">
+                            <label class="form-label">Status *</label>
+                            {{ form.status }}
+                            {% if form.status.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.status.errors }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">Select the initial fee status</small>
+                        </div>
+
+                        <!-- Info Box -->
+                        <div class="alert alert-info mb-4">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>Note:</strong> The status will be automatically updated based on payments received.
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Form Buttons -->
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-check-circle"></i> Create Fee
+                            </button>
+                            <a href="{% url 'fee-list' %}" class="btn btn-secondary btn-lg">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CSS for form styling -->
+<style>
+    .form-control, .form-select {
+        border-radius: 0.5rem;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #0066cc;
+        box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25);
+    }
+    
+    .invalid-feedback {
+        color: #dc3545;
+        margin-top: 0.25rem;
+        font-size: 0.875rem;
+    }
+    
+    .input-group .form-control:focus {
+        border-color: #0066cc;
+        box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25);
+    }
+</style>
+{% endblock %}

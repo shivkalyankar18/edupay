@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center mt-4">
+        <div class="col-md-10">
+            <!-- Profile Header -->
+            <div class="card mb-4">
+                <div class="card-body p-5 text-center">
+                    {% if user.profile_photo %}
+                        <img src="{{ user.profile_photo.url }}" 
+                             alt="Profile" 
+                             class="rounded-circle mb-3" 
+                             width="150" 
+                             height="150"
+                             style="object-fit: cover; border: 4px solid #0066cc;">
+                    {% else %}
+                        <div class="mb-3">
+                            <i class="bi bi-person-circle" style="font-size: 150px; color: #ccc;"></i>
+                        </div>
+                    {% endif %}
+                    <h2>{{ user.get_full_name }}</h2>
+                    <p class="text-muted mb-0">
+                        <span class="badge bg-primary">{{ user.get_role_display }}</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Profile Form -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-person-check"></i> Edit Profile
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Display errors if any -->
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <strong>Error!</strong>
+                                {% for error in form.non_field_errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endif %}
+
+                        <!-- Personal Information Section -->
+                        <h5 class="mb-3">Personal Information</h5>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">First Name *</label>
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.first_name.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Last Name *</label>
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.last_name.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Contact Information Section -->
+                        <h5 class="mb-3">Contact Information</h5>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Email Address *</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.email.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Phone Number</label>
+                                {{ form.phone_number }}
+                                {% if form.phone_number.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.phone_number.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Address Section -->
+                        <h5 class="mb-3">Address</h5>
+                        <div class="mb-3">
+                            <label class="form-label">Street Address</label>
+                            {{ form.address }}
+                            {% if form.address.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.address.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">City</label>
+                                {{ form.city }}
+                                {% if form.city.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.city.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">State</label>
+                                {{ form.state }}
+                                {% if form.state.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.state.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Postal Code</label>
+                                {{ form.postal_code }}
+                                {% if form.postal_code.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.postal_code.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Profile Photo Section -->
+                        <h5 class="mb-3">Profile Photo</h5>
+                        <div class="mb-3">
+                            <label class="form-label">Upload Photo</label>
+                            {{ form.profile_photo }}
+                            <small class="form-text text-muted">
+                                Allowed formats: JPG, JPEG, PNG (Max 5MB)
+                            </small>
+                            {% if form.profile_photo.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.profile_photo.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Form Buttons -->
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-check-circle"></i> Save Changes
+                            </button>
+                            <a href="{% url 'dashboard' %}" class="btn btn-secondary btn-lg">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Additional Info Card -->
+            <div class="card mt-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Account Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Username:</strong> {{ user.username }}</p>
+                            <p><strong>Role:</strong> {{ user.get_role_display }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Member Since:</strong> {{ user.created_at|date:"d M Y" }}</p>
+                            <p><strong>Last Updated:</strong> {{ user.updated_at|date:"d M Y H:i" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CSS for form styling -->
+<style>
+    .form-control, .form-select {
+        border-radius: 0.5rem;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #0066cc;
+        box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25);
+    }
+    
+    .invalid-feedback {
+        color: #dc3545;
+        margin-top: 0.25rem;
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}

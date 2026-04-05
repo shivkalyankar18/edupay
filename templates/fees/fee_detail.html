@@ -1,0 +1,336 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Main Fee Details Card -->
+        <div class="col-md-8">
+            <!-- Fee Header Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="bi bi-currency-dollar"></i> Fee Details
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <!-- Student and Course Info -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <p>
+                                <strong>Student Name:</strong><br>
+                                {{ fee.student.get_full_name }}
+                            </p>
+                            <p>
+                                <strong>Student Username:</strong><br>
+                                <code>{{ fee.student.username }}</code>
+                            </p>
+                            <p>
+                                <strong>Email:</strong><br>
+                                <a href="mailto:{{ fee.student.email }}">{{ fee.student.email }}</a>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p>
+                                <strong>Course Code:</strong><br>
+                                <span class="badge bg-info" style="font-size: 1rem;">
+                                    {{ fee.course.course_code }}
+                                </span>
+                            </p>
+                            <p>
+                                <strong>Course Name:</strong><br>
+                                {{ fee.course.course_name }}
+                            </p>
+                            <p>
+                                <strong>Department:</strong><br>
+                                {{ fee.course.department }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Fee Amount Details -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <p>
+                                <strong>Fee Amount:</strong><br>
+                                <span style="font-size: 1.5rem; color: #0066cc;">
+                                    ₹{{ fee.amount }}
+                                </span>
+                            </p>
+                            <p>
+                                <strong>Amount Paid:</strong><br>
+                                <span style="font-size: 1.5rem; color: #28a745;">
+                                    ₹{{ fee.amount_paid }}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p>
+                                <strong>Remaining Amount:</strong><br>
+                                <span style="font-size: 1.5rem; color: {% if remaining > 0 %}#dc3545{% else %}#28a745{% endif %};">
+                                    ₹{{ remaining }}
+                                </span>
+                            </p>
+                            {% if fee.late_fee_amount > 0 %}
+                                <p>
+                                    <strong>Late Fee:</strong><br>
+                                    <span style="font-size: 1.2rem; color: #dc3545;">
+                                        ₹{{ fee.late_fee_amount }}
+                                    </span>
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Due Date and Status -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <p>
+                                <strong>Due Date:</strong><br>
+                                {{ fee.due_date|date:"d M Y" }}
+                                {% if fee.is_overdue %}
+                                    <br>
+                                    <small class="text-danger">
+                                        <i class="bi bi-exclamation-circle"></i>
+                                        ({{ fee.get_days_overdue }} days overdue)
+                                    </small>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p>
+                                <strong>Status:</strong><br>
+                                {% if fee.status == 'pending' %}
+                                    <span class="badge bg-warning text-dark" style="font-size: 1rem;">
+                                        <i class="bi bi-hourglass"></i> Pending
+                                    </span>
+                                {% elif fee.status == 'partially_paid' %}
+                                    <span class="badge bg-info" style="font-size: 1rem;">
+                                        <i class="bi bi-half-circle"></i> Partially Paid
+                                    </span>
+                                {% elif fee.status == 'paid' %}
+                                    <span class="badge bg-success" style="font-size: 1rem;">
+                                        <i class="bi bi-check-circle"></i> Paid
+                                    </span>
+                                {% elif fee.status == 'overdue' %}
+                                    <span class="badge bg-danger" style="font-size: 1rem;">
+                                        <i class="bi bi-exclamation-circle"></i> Overdue
+                                    </span>
+                                {% elif fee.status == 'waived' %}
+                                    <span class="badge bg-secondary" style="font-size: 1rem;">
+                                        <i class="bi bi-hand-thumbs-up"></i> Waived
+                                    </span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Timestamps -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <small class="text-muted">
+                                <strong>Created:</strong><br>
+                                {{ fee.created_at|date:"d M Y H:i" }}
+                            </small>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted">
+                                <strong>Last Updated:</strong><br>
+                                {{ fee.updated_at|date:"d M Y H:i" }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment History Section -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-clock-history"></i> Payment History
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if payments %}
+                        <div class="table-responsive">
+                            <table class="table table-striped mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Transaction ID</th>
+                                        <th>Amount</th>
+                                        <th>Date</th>
+                                        <th>Method</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for payment in payments %}
+                                        <tr>
+                                            <td>
+                                                <code>{{ payment.transaction_id }}</code>
+                                            </td>
+                                            <td>
+                                                <strong class="text-success">₹{{ payment.amount }}</strong>
+                                            </td>
+                                            <td>
+                                                {{ payment.payment_date|date:"d M Y H:i" }}
+                                            </td>
+                                            <td>
+                                                {% if payment.payment_method == 'online' %}
+                                                    <span class="badge bg-info">Online</span>
+                                                {% elif payment.payment_method == 'cheque' %}
+                                                    <span class="badge bg-secondary">Cheque</span>
+                                                {% elif payment.payment_method == 'cash' %}
+                                                    <span class="badge bg-warning text-dark">Cash</span>
+                                                {% elif payment.payment_method == 'bank_transfer' %}
+                                                    <span class="badge bg-primary">Bank Transfer</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if payment.status == 'confirmed' %}
+                                                    <span class="badge bg-success">
+                                                        <i class="bi bi-check-circle"></i> Confirmed
+                                                    </span>
+                                                {% elif payment.status == 'pending' %}
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="bi bi-hourglass"></i> Pending
+                                                    </span>
+                                                {% elif payment.status == 'failed' %}
+                                                    <span class="badge bg-danger">
+                                                        <i class="bi bi-x-circle"></i> Failed
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-footer bg-light">
+                            <small class="text-muted">
+                                Total payments: {{ payments|length }}
+                            </small>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-inbox" style="font-size: 2rem; color: #ccc;"></i>
+                            <p class="text-muted mt-2">No payments recorded yet</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Cards -->
+        <div class="col-md-4">
+            <!-- Payment Progress Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-graph-up"></i> Payment Progress
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if fee.amount > 0 %}
+                        {% widthratio fee.amount_paid fee.amount 100 as progress %}
+                        <div class="progress mb-3" style="height: 25px;">
+                            <div class="progress-bar" 
+                                 role="progressbar" 
+                                 style="width: {{ progress }}%;"
+                                 aria-valuenow="{{ progress }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                                {{ progress }}%
+                            </div>
+                        </div>
+                        <p class="mb-2">
+                            <strong>Paid:</strong> ₹{{ fee.amount_paid }} / ₹{{ fee.amount }}
+                        </p>
+                    {% else %}
+                        <p class="text-muted">No fee amount set</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Actions Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="bi bi-lightning"></i> Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if remaining > 0 %}
+                        <a href="{% url 'payment-create' fee.pk %}" 
+                           class="btn btn-success w-100 mb-2">
+                            <i class="bi bi-credit-card"></i> Record Payment
+                        </a>
+                    {% else %}
+                        <button class="btn btn-secondary w-100 mb-2" disabled>
+                            <i class="bi bi-check-circle"></i> Fee Paid
+                        </button>
+                    {% endif %}
+                    
+                    <a href="{% url 'fee-list' %}" 
+                       class="btn btn-secondary w-100">
+                        <i class="bi bi-list"></i> Back to Fees
+                    </a>
+                </div>
+            </div>
+
+            <!-- Fee Summary Card -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-receipt"></i> Summary
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted">Total Fee</small>
+                        <h6 class="text-primary">₹{{ fee.amount }}</h6>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted">Amount Paid</small>
+                        <h6 class="text-success">₹{{ fee.amount_paid }}</h6>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted">Remaining</small>
+                        <h6 class="text-danger">₹{{ remaining }}</h6>
+                    </div>
+                    {% if fee.late_fee_amount > 0 %}
+                        <hr>
+                        <div>
+                            <small class="text-muted">Late Fee</small>
+                            <h6 class="text-warning">₹{{ fee.late_fee_amount }}</h6>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CSS -->
+<style>
+    .badge {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+    }
+    
+    .progress {
+        background-color: #e9ecef;
+        border-radius: 0.5rem;
+    }
+    
+    .progress-bar {
+        background-color: #0066cc;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}

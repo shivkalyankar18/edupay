@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-7">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <h3 class="card-title text-center mb-4">
+                        <i class="bi bi-person-plus"></i> Student Registration
+                    </h3>
+                    
+                    <p class="text-center text-muted mb-4">
+                        Create your account to access EduPay
+                    </p>
+                    
+                    <form method="POST" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Display errors if any -->
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <strong>Error!</strong>
+                                {% for error in form.non_field_errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Personal Information -->
+                        <h5 class="mb-3">Personal Information</h5>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">First Name *</label>
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.first_name.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Last Name *</label>
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.last_name.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label class="form-label">Email Address *</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.email.errors }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">
+                                Your email will be used as your username
+                            </small>
+                        </div>
+                        
+                        <!-- Password -->
+                        <h5 class="mb-3">Password</h5>
+                        <div class="mb-3">
+                            <label class="form-label">Password *</label>
+                            {{ form.password1 }}
+                            {% if form.password1.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.password1.errors }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted d-block mt-2">
+                                <i class="bi bi-info-circle"></i>
+                                <strong>Password requirements:</strong>
+                                <ul class="mb-0 mt-1">
+                                    <li>At least 8 characters long</li>
+                                    <li>Cannot be entirely numeric</li>
+                                    <li>Should not be a common password</li>
+                                </ul>
+                            </small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Confirm Password *</label>
+                            {{ form.password2 }}
+                            {% if form.password2.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.password2.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <!-- Buttons -->
+                        <button type="submit" class="btn btn-success btn-lg w-100 mb-3">
+                            <i class="bi bi-check-circle"></i> Create Account
+                        </button>
+                        
+                        <p class="text-center">
+                            Already have an account? 
+                            <a href="{% url 'login' %}">Login here</a>
+                        </p>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Information Card -->
+            <div class="card mt-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-shield-check"></i> Your Information is Secure
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li>Your password is encrypted and never stored in plain text</li>
+                        <li>Your email address will only be used for account recovery</li>
+                        <li>We will never share your personal information with third parties</li>
+                        <li>All data is protected with industry-standard security measures</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CSS for form styling -->
+<style>
+    .form-control, .form-select {
+        border-radius: 0.5rem;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #0066cc;
+        box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25);
+    }
+    
+    .invalid-feedback {
+        color: #dc3545;
+        margin-top: 0.25rem;
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}

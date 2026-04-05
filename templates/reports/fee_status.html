@@ -1,0 +1,302 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2>
+                <i class="bi bi-bar-chart"></i> Fee Status Report
+            </h2>
+            <p class="text-muted">Complete overview of all student fees and their payment status</p>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">Total Fees</small>
+                            <h4 class="mb-0 mt-2 text-primary">
+                                ₹{{ total_fee }}
+                            </h4>
+                        </div>
+                        <div style="font-size: 3rem; color: #e9ecef;">
+                            <i class="bi bi-currency-dollar"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">Amount Paid</small>
+                            <h4 class="mb-0 mt-2 text-success">
+                                ₹{{ total_paid }}
+                            </h4>
+                        </div>
+                        <div style="font-size: 3rem; color: #e9ecef;">
+                            <i class="bi bi-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">Remaining</small>
+                            <h4 class="mb-0 mt-2 text-warning">
+                                ₹{{ total_remaining }}
+                            </h4>
+                        </div>
+                        <div style="font-size: 3rem; color: #e9ecef;">
+                            <i class="bi bi-hourglass"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">Collection Rate</small>
+                            <h4 class="mb-0 mt-2 text-info">
+                                {% if total_fee > 0 %}
+                                    {% widthratio total_paid total_fee 100 %}%
+                                {% else %}
+                                    0%
+                                {% endif %}
+                            </h4>
+                        </div>
+                        <div style="font-size: 3rem; color: #e9ecef;">
+                            <i class="bi bi-percent"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fee Status Distribution -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-pie-chart"></i> Fee Status Distribution
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if by_status %}
+                        <div class="row">
+                            {% for status in by_status %}
+                                <div class="col-md-4 mb-3">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <strong>
+                                                    {% if status.status == 'pending' %}
+                                                        <i class="bi bi-hourglass"></i> Pending
+                                                    {% elif status.status == 'partially_paid' %}
+                                                        <i class="bi bi-half-circle"></i> Partially Paid
+                                                    {% elif status.status == 'paid' %}
+                                                        <i class="bi bi-check-circle"></i> Paid
+                                                    {% elif status.status == 'overdue' %}
+                                                        <i class="bi bi-exclamation-circle"></i> Overdue
+                                                    {% elif status.status == 'waived' %}
+                                                        <i class="bi bi-hand-thumbs-up"></i> Waived
+                                                    {% endif %}
+                                                </strong>
+                                                <span class="badge bg-secondary">{{ status.count }} records</span>
+                                            </div>
+                                            
+                                            <h5>₹{{ status.total }}</h5>
+                                            
+                                            <small class="text-muted">
+                                                Amount Paid: ₹{{ status.amount_paid|default:'0' }}
+                                            </small>
+                                            
+                                            {% if total_fee > 0 %}
+                                                <div class="progress mt-2" style="height: 20px;">
+                                                    {% widthratio status.total total_fee 100 as percentage %}
+                                                    <div class="progress-bar" 
+                                                         role="progressbar" 
+                                                         style="width: {{ percentage }}%;"
+                                                         aria-valuenow="{{ percentage }}" 
+                                                         aria-valuemin="0" 
+                                                         aria-valuemax="100">
+                                                        {{ percentage }}%
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-3">No fee status data</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fee Status Table -->
+    <div class="card">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">
+                <i class="bi bi-table"></i> Detailed Fees List
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            {% if fees %}
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 18%;">Student Name</th>
+                                <th style="width: 12%;">Course Code</th>
+                                <th style="width: 10%;">Amount</th>
+                                <th style="width: 10%;">Paid</th>
+                                <th style="width: 10%;">Remaining</th>
+                                <th style="width: 12%;">Due Date</th>
+                                <th style="width: 12%;">Status</th>
+                                <th style="width: 6%;">%</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for fee in fees %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ fee.student.get_full_name }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ fee.student.username }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary">
+                                            {{ fee.course.course_code }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <strong>₹{{ fee.amount }}</strong>
+                                    </td>
+                                    <td>
+                                        <span class="text-success">
+                                            <strong>₹{{ fee.amount_paid }}</strong>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="{% if fee.get_remaining > 0 %}text-danger{% else %}text-success{% endif %}">
+                                            <strong>₹{{ fee.get_remaining }}</strong>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {{ fee.due_date|date:"d M Y" }}
+                                        {% if fee.is_overdue %}
+                                            <br>
+                                            <small class="text-danger">
+                                                <i class="bi bi-exclamation-circle"></i> Overdue
+                                            </small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if fee.status == 'pending' %}
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="bi bi-hourglass"></i> Pending
+                                            </span>
+                                        {% elif fee.status == 'partially_paid' %}
+                                            <span class="badge bg-info">
+                                                <i class="bi bi-half-circle"></i> Partially Paid
+                                            </span>
+                                        {% elif fee.status == 'paid' %}
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i> Paid
+                                            </span>
+                                        {% elif fee.status == 'overdue' %}
+                                            <span class="badge bg-danger">
+                                                <i class="bi bi-exclamation-circle"></i> Overdue
+                                            </span>
+                                        {% elif fee.status == 'waived' %}
+                                            <span class="badge bg-secondary">
+                                                <i class="bi bi-hand-thumbs-up"></i> Waived
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if fee.amount > 0 %}
+                                            <strong>
+                                                {% widthratio fee.amount_paid fee.amount 100 %}%
+                                            </strong>
+                                        {% else %}
+                                            0%
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Table Footer Stats -->
+                <div class="card-footer bg-light">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <small class="text-muted">Total Records</small>
+                            <h6>{{ fees|length }}</h6>
+                        </div>
+                        <div class="col-md-3">
+                            <small class="text-muted">Total Amount</small>
+                            <h6 class="text-primary">₹{{ total_fee }}</h6>
+                        </div>
+                        <div class="col-md-3">
+                            <small class="text-muted">Total Collected</small>
+                            <h6 class="text-success">₹{{ total_paid }}</h6>
+                        </div>
+                        <div class="col-md-3">
+                            <small class="text-muted">Collection Rate</small>
+                            <h6 class="text-info">
+                                {% if total_fee > 0 %}
+                                    {% widthratio total_paid total_fee 100 %}%
+                                {% else %}
+                                    0%
+                                {% endif %}
+                            </h6>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+                    <p class="text-muted mt-3">No fees recorded</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Report Information -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="alert alert-secondary">
+                <small>
+                    <strong>Report Generated:</strong> {% now "d M Y H:i" %}<br>
+                    <strong>Report Type:</strong> Fee Status Report<br>
+                    <strong>Data Period:</strong> All Time<br>
+                    <strong>Total Records:</strong> {% if fees %}{{ fees|length }}{% else %}0{% endif %} fees
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

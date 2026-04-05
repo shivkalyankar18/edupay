@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Course Details Card -->
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="bi bi-book-fill"></i> {{ course.course_name }}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <!-- Course Code and Department -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <p>
+                                <strong>Course Code:</strong>
+                                <span class="badge bg-primary" style="font-size: 1rem;">
+                                    {{ course.course_code }}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p>
+                                <strong>Department:</strong>
+                                <i class="bi bi-building"></i> {{ course.department }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Semester and Credits -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <p>
+                                <strong>Semester:</strong>
+                                <span class="badge bg-info">
+                                    {{ course.get_semester_display }}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p>
+                                <strong>Credits:</strong>
+                                <span class="badge bg-secondary">
+                                    {{ course.credits }} Credits
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="mb-4">
+                        <p>
+                            <strong>Status:</strong>
+                            {% if course.is_active %}
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle"></i> Active
+                                </span>
+                            {% else %}
+                                <span class="badge bg-danger">
+                                    <i class="bi bi-x-circle"></i> Inactive
+                                </span>
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <!-- Description -->
+                    {% if course.description %}
+                        <hr>
+                        <h5>Description</h5>
+                        <p class="text-muted">{{ course.description }}</p>
+                    {% endif %}
+
+                    <!-- Action Buttons -->
+                    <hr>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'course-edit' course.pk %}" class="btn btn-warning">
+                            <i class="bi bi-pencil"></i> Edit Course
+                        </a>
+                        <a href="{% url 'course-list' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fee Structure Card -->
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-currency-dollar"></i> Fee Structure
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="fee-item d-flex justify-content-between mb-2">
+                        <span>Base Fee:</span>
+                        <strong>₹{{ course.base_fee }}</strong>
+                    </div>
+                    {% if course.lab_fee > 0 %}
+                        <div class="fee-item d-flex justify-content-between mb-2">
+                            <span>Lab Fee:</span>
+                            <strong>₹{{ course.lab_fee }}</strong>
+                        </div>
+                    {% endif %}
+                    {% if course.library_fee > 0 %}
+                        <div class="fee-item d-flex justify-content-between mb-2">
+                            <span>Library Fee:</span>
+                            <strong>₹{{ course.library_fee }}</strong>
+                        </div>
+                    {% endif %}
+                    {% if course.activity_fee > 0 %}
+                        <div class="fee-item d-flex justify-content-between mb-2">
+                            <span>Activity Fee:</span>
+                            <strong>₹{{ course.activity_fee }}</strong>
+                        </div>
+                    {% endif %}
+                    
+                    <hr>
+                    
+                    <div class="d-flex justify-content-between" style="font-size: 1.2rem;">
+                        <strong>Total Fee:</strong>
+                        <strong class="text-success">₹{{ total_fee }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course Info Card -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle"></i> Course Info
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p>
+                        <strong>Created:</strong><br>
+                        {{ course.created_at|date:"d M Y H:i" }}
+                    </p>
+                    <p>
+                        <strong>Last Updated:</strong><br>
+                        {{ course.updated_at|date:"d M Y H:i" }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CSS -->
+<style>
+    .fee-item {
+        padding: 8px 0;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .fee-item:last-child {
+        border-bottom: none;
+    }
+</style>
+{% endblock %}

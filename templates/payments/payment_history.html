@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2>
+                <i class="bi bi-clock-history"></i> Payment History
+            </h2>
+            <p class="text-muted">View all your payment transactions</p>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">Total Payments</small>
+                            <h4 class="mb-0 mt-2 text-primary">
+                                {{ payments|length }}
+                            </h4>
+                        </div>
+                        <div style="font-size: 3rem; color: #e9ecef;">
+                            <i class="bi bi-receipt"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">Total Amount Paid</small>
+                            <h4 class="mb-0 mt-2 text-success">
+                                ₹{{ total_amount|default:'0' }}
+                            </h4>
+                        </div>
+                        <div style="font-size: 3rem; color: #e9ecef;">
+                            <i class="bi bi-currency-dollar"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">Confirmed Payments</small>
+                            <h4 class="mb-0 mt-2 text-info">
+                                {{ confirmed_count|default:'0' }}
+                            </h4>
+                        </div>
+                        <div style="font-size: 3rem; color: #e9ecef;">
+                            <i class="bi bi-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payments Table -->
+    <div class="card">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">
+                <i class="bi bi-list"></i> Payment Transactions
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            {% if payments %}
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 15%;">Transaction ID</th>
+                                <th style="width: 20%;">Course</th>
+                                <th style="width: 12%;">Amount</th>
+                                <th style="width: 15%;">Payment Date</th>
+                                <th style="width: 12%;">Method</th>
+                                <th style="width: 12%;">Status</th>
+                                <th style="width: 14%;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in payments %}
+                                <tr>
+                                    <td>
+                                        <code class="text-primary">{{ payment.transaction_id }}</code>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <strong>{{ payment.fee.course.course_code }}</strong>
+                                            <br>
+                                            <small class="text-muted">
+                                                {{ payment.fee.course.course_name }}
+                                            </small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <strong class="text-success">
+                                            ₹{{ payment.amount }}
+                                        </strong>
+                                    </td>
+                                    <td>
+                                        {{ payment.payment_date|date:"d M Y H:i" }}
+                                        <br>
+                                        <small class="text-muted">
+                                            {{ payment.payment_date|date:"l" }}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        {% if payment.payment_method == 'online' %}
+                                            <span class="badge bg-info">
+                                                <i class="bi bi-phone"></i> Online
+                                            </span>
+                                        {% elif payment.payment_method == 'cheque' %}
+                                            <span class="badge bg-secondary">
+                                                <i class="bi bi-file-check"></i> Cheque
+                                            </span>
+                                        {% elif payment.payment_method == 'cash' %}
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="bi bi-cash-coin"></i> Cash
+                                            </span>
+                                        {% elif payment.payment_method == 'bank_transfer' %}
+                                            <span class="badge bg-primary">
+                                                <i class="bi bi-bank"></i> Bank Transfer
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if payment.status == 'confirmed' %}
+                                            <span class="badge bg-success">
+                                                <i class="bi bi-check-circle"></i> Confirmed
+                                            </span>
+                                        {% elif payment.status == 'pending' %}
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="bi bi-hourglass"></i> Pending
+                                            </span>
+                                        {% elif payment.status == 'failed' %}
+                                            <span class="badge bg-danger">
+                                                <i class="bi bi-x-circle"></i> Failed
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="{% url 'fee-detail' payment.fee.pk %}" 
+                                               class="btn btn-info" 
+                                               title="View Fee">
+                                                <i class="bi bi-eye"></i> View Fee
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Table Footer -->
+                <div class="card-footer bg-light">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <small class="text-muted">Total Transactions</small>
+                            <h6>{{ payments|length }}</h6>
+                        </div>
+                        <div class="col-md-3">
+                            <small class="text-muted">Total Amount Paid</small>
+                            <h6 class="text-success">₹{{ total_amount|default:'0' }}</h6>
+                        </div>
+                        <div class="col-md-3">
+                            <small class="text-muted">Confirmed</small>
+                            <h6 class="text-success">{{ confirmed_count|default:'0' }}</h6>
+                        </div>
+                        <div class="col-md-3">
+                            <small class="text-muted">Pending</small>
+                            <h6 class="text-warning">{{ pending_count|default:'0' }}</h6>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <!-- Empty State -->
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+                    <p class="text-muted mt-3">
+                        You haven't made any payments yet.
+                    </p>
+                    <a href="{% url 'my-fees' %}" class="btn btn-primary mt-3">
+                        <i class="bi bi-currency-dollar"></i> Make Payment
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Additional Information Card -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="alert alert-info">
+                <h6>
+                    <i class="bi bi-info-circle"></i> Payment Information
+                </h6>
+                <ul class="mb-0">
+                    <li>All payments are recorded in your account history</li>
+                    <li>You can view fee details by clicking "View Fee" button</li>
+                    <li>Keep your transaction IDs for reference</li>
+                    <li>Contact support if you have any payment issues</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

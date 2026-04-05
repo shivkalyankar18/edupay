@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center mt-4">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-credit-card"></i> Make Payment
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Fee Information Alert -->
+                    <div class="alert alert-info mb-4">
+                        <h6 class="mb-3">
+                            <i class="bi bi-info-circle"></i> Fee Information
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-1">
+                                    <strong>Course:</strong> {{ fee.course.course_code }}
+                                </p>
+                                <p class="mb-0">
+                                    <strong>Course Name:</strong> {{ fee.course.course_name }}
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-1">
+                                    <strong>Due Date:</strong> {{ fee.due_date|date:"d M Y" }}
+                                </p>
+                                <p class="mb-0">
+                                    <strong>Status:</strong> 
+                                    {% if fee.status == 'overdue' %}
+                                        <span class="badge bg-danger">Overdue</span>
+                                    {% else %}
+                                        <span class="badge bg-warning">{{ fee.get_status_display }}</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fee Amount Summary -->
+                    <h5 class="mb-3">
+                        <i class="bi bi-currency-dollar"></i> Fee Summary
+                    </h5>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <small class="text-muted">Total Fee</small>
+                                    <h4 class="text-primary mb-0">₹{{ fee.amount }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <small class="text-muted">Remaining Amount</small>
+                                    <h4 class="text-danger mb-0">₹{{ remaining }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Payment Form -->
+                    <h5 class="mb-3">
+                        <i class="bi bi-pencil-square"></i> Payment Details
+                    </h5>
+
+                    <form method="POST" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Display errors if any -->
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <strong>Error!</strong>
+                                {% for error in form.non_field_errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endif %}
+
+                        <!-- Payment Amount -->
+                        <div class="mb-3">
+                            <label class="form-label">Payment Amount *</label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text">₹</span>
+                                {{ form.amount }}
+                            </div>
+                            {% if form.amount.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.amount.errors }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">
+                                Enter the amount you wish to pay (Max: ₹{{ remaining }})
+                            </small>
+                        </div>
+
+                        <!-- Payment Method -->
+                        <div class="mb-3">
+                            <label class="form-label">Payment Method *</label>
+                            {{ form.payment_method }}
+                            {% if form.payment_method.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.payment_method.errors }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">
+                                Select how you want to make the payment
+                            </small>
+                        </div>
+
+                        <!-- Transaction ID -->
+                        <div class="mb-3">
+                            <label class="form-label">Transaction ID / Reference *</label>
+                            {{ form.transaction_id }}
+                            {% if form.transaction_id.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.transaction_id.errors }}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted">
+                                For online: Enter transaction ID<br>
+                                For cheque: Enter cheque number<br>
+                                For cash: Enter receipt number
+                            </small>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Form Buttons -->
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-check-circle"></i> Submit Payment
+                            </button>
+                            <a href="{% url 'fee-detail' fee.pk %}" class="btn btn-secondary btn-lg">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Payment Methods Info -->
+            <div class="card mt-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-question-circle"></i> Payment Methods
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6>
+                                <i class="bi bi-phone"></i> Online Payment
+                            </h6>
+                            <p class="small text-muted">
+                                Pay directly through our online portal. Your transaction will be processed immediately.
+                            </p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>
+                                <i class="bi bi-file-check"></i> Cheque Payment
+                            </h6>
+                            <p class="small text-muted">
+                                Submit cheque through the college office. Include cheque number as reference.
+                            </p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>
+                                <i class="bi bi-cash-coin"></i> Cash Payment
+                            </h6>
+                            <p class="small text-muted">
+                                Pay cash at the college office counter. Get a receipt number for reference.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CSS for form styling -->
+<style>
+    .form-control, .form-select {
+        border-radius: 0.5rem;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #0066cc;
+        box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25);
+    }
+    
+    .invalid-feedback {
+        color: #dc3545;
+        margin-top: 0.25rem;
+        font-size: 0.875rem;
+    }
+    
+    .input-group .form-control:focus {
+        border-color: #0066cc;
+        box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25);
+    }
+</style>
+{% endblock %}

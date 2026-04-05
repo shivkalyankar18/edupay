@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center mt-4">
+        <div class="col-md-10">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-book-fill"></i> {{ title }}
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Display errors if any -->
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <strong>Error!</strong>
+                                {% for error in form.non_field_errors %}
+                                    <div>{{ error }}</div>
+                                {% endfor %}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endif %}
+
+                        <!-- Basic Information Section -->
+                        <h5 class="mb-3">
+                            <i class="bi bi-info-circle"></i> Basic Information
+                        </h5>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Course Code *</label>
+                                {{ form.course_code }}
+                                {% if form.course_code.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.course_code.errors }}
+                                    </div>
+                                {% endif %}
+                                <small class="form-text text-muted">e.g., CS101, ENG201</small>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label">Course Name *</label>
+                                {{ form.course_name }}
+                                {% if form.course_name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.course_name.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.description.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Course Details Section -->
+                        <h5 class="mb-3">
+                            <i class="bi bi-sliders"></i> Course Details
+                        </h5>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Department *</label>
+                                {{ form.department }}
+                                {% if form.department.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.department.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Semester *</label>
+                                {{ form.semester }}
+                                {% if form.semester.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.semester.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Credits *</label>
+                                {{ form.credits }}
+                                {% if form.credits.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.credits.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Fee Structure Section -->
+                        <h5 class="mb-3">
+                            <i class="bi bi-currency-dollar"></i> Fee Structure
+                        </h5>
+                        <div class="alert alert-info mb-3">
+                            <strong>Total Fee:</strong> Sum of all fee components below
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Base Fee (Tuition) *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₹</span>
+                                    {{ form.base_fee }}
+                                </div>
+                                {% if form.base_fee.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.base_fee.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Lab Fee</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₹</span>
+                                    {{ form.lab_fee }}
+                                </div>
+                                {% if form.lab_fee.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.lab_fee.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Library Fee</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₹</span>
+                                    {{ form.library_fee }}
+                                </div>
+                                {% if form.library_fee.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.library_fee.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Activity Fee</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₹</span>
+                                    {{ form.activity_fee }}
+                                </div>
+                                {% if form.activity_fee.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.activity_fee.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Status Section -->
+                        <h5 class="mb-3">
+                            <i class="bi bi-toggle2-on"></i> Status
+                        </h5>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ form.is_active }}
+                                <label class="form-check-label">
+                                    {{ form.is_active.label }}
+                                </label>
+                            </div>
+                            <small class="form-text text-muted">
+                                Check this box to make the course available for students
+                            </small>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Form Buttons -->
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-check-circle"></i> Save Course
+                            </button>
+                            <a href="{% url 'course-list' %}" class="btn btn-secondary btn-lg">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CSS for form styling -->
+<style>
+    .form-control, .form-select {
+        border-radius: 0.5rem;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #0066cc;
+        box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25);
+    }
+    
+    .invalid-feedback {
+        color: #dc3545;
+        margin-top: 0.25rem;
+        font-size: 0.875rem;
+    }
+    
+    .input-group .form-control:focus {
+        border-color: #0066cc;
+        box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25);
+    }
+</style>
+{% endblock %}
